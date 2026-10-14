@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PluvioANA | Consulta pluviométrica</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f3f6fa;
+      color: #263746;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background: #12304a;
+      color: white;
+      padding: 28px 20px;
+    }
+    header div, main, footer {
+      max-width: 1000px;
+      margin: auto;
+    }
+    header h1 { margin: 0 0 8px; }
+    main { padding: 28px 18px; }
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 18px #12304a0d;
+    }
+    h2 { color: #12304a; margin-top: 0; }
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    label { font-weight: bold; font-size: 14px; }
+    input {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      border: 1px solid #d4dee7;
+      border-radius: 7px;
+    }
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 12px 18px;
+      margin-top: 18px;
+      background: #176b87;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .green { background: #2d9c75; }
+    .error {
+      padding: 14px;
+      border-radius: 7px;
+      background: #fff0ed;
+      color: #a33324;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e6edf2;
+    }
+    th { background: #edf3f7; color: #12304a; }
+    footer { padding: 0 18px 24px; color: #6b7c8f; }
+    @media(max-width:650px) {
+      .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>PluvioANA</h1>
+    <p>Consulta de dados pluviométricos da ANA</p>
+  </div>
+</header>
+<main>
+  <section class="panel">
+    <h2>Consultar dados</h2>
+    <p>Informe a estação e o período desejado.</p>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="/">
+      <div class="fields">
+        <label>Código da estação
+          <input name="station" required pattern="[0-9]+"
+                 value="{{ station }}" placeholder="Código numérico">
+        </label>
+        <label>Data inicial
+          <input type="date" name="start" required value="{{ start }}">
+        </label>
+        <label>Data final
+          <input type="date" name="end" required value="{{ end }}">
+        </label>
+      </div>
+      <button type="submit">Consultar dados</button>
+    </form>
+  </section>
+
+  {% if records %}
+  <section class="panel">
+    <h2>Resultados</h2>
+    <p>{{ records|length }} registro(s) encontrado(s)</p>
+    <form method="post" action="/exportar">
+      <input type="hidden" name="station" value="{{ station }}">
+      <input type="hidden" name="start" value="{{ start }}">
+      <input type="hidden" name="end" value="{{ end }}">
+      <button class="green" type="submit">Baixar CSV</button>
+    </form>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          {% for column in records[0].keys() %}
+            <th>{{ column }}</th>
+          {% endfor %}
+        </tr></thead>
+        <tbody>
+          {% for record in records %}
+          <tr>
+            {% for value in record.values() %}
+              <td>{{ value }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+</main>
+<footer>Fonte: Serviço de Telemetria da ANA.</footer>
+</body>
+</html>
