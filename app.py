@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from flask import Flask, render_template, request, make_response
 
-from consulta_pluviometrica import fetch_data, value_of
+from web_ana import fetch_data, value_of
 
 app = Flask(__name__)
 
